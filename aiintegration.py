@@ -17,6 +17,17 @@ def preprocessing_data(data):
     data['year'] = data['travel_date'].dt.year
     return data
 
+def chat_with_openai(user_input,data):
+    prompt = f"You are an assistant that can analyze the following data:\n{data}\nUser: {user_input}\nAssistant:"
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response['choices'][0]['message']['content']
+
 def integrate_openai(data):
 
     # Load environment variables from .env file
@@ -30,6 +41,7 @@ def integrate_openai(data):
     st.write("Integrate to openai api to anlyze insights the Thailand domestic tourism data set.")
 
     data = preprocessing_data(data)
+    st.dataframe(data)
     
     # Basic statistics
     st.header('Basic Statistics')
@@ -85,11 +97,12 @@ def integrate_openai(data):
     st.write(response.choices[0].message['content'].strip())
 
     # User input for specific analysis
-    st.header('Custom Analysis')
+    st.header('Tourist Analysis')
     user_question = st.text_input("Ask a question about the tourism data:")
 
     if user_question:
-        ai_prompt = f"Based on the Thailand tourism data provided earlier, answer the following question: {user_question}"
+        # ai_prompt = f"Based on the Thailand tourism data provided earlier, answer the following question: {user_question}"
+        prompt = f"You are an assistant that can analyze the following data:\n{data}\nUser: {user_question}\nAssistant:"
     
         response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
